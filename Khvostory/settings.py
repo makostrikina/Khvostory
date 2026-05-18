@@ -14,6 +14,13 @@ from pathlib import Path
 import os
 
 from dotenv import load_dotenv
+import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3'
+    )
+}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +30,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'test-secret-key'
+SECRET_KEY = '=wh+5a03pyst!shn4e8yb=iki(#lfqpb)362a6wn75mgqg0p3b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+
+DATABASE_URL=vet_ckg8
 
 ALLOWED_HOSTS = ['*']
 
@@ -78,17 +87,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Khvostory.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
