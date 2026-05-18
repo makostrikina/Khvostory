@@ -1,0 +1,106 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    История болезни:
+    {{ pet.name }}
+</h2>
+
+<div class="card mb-4">
+
+    <div class="card-body">
+
+        <p>
+            <strong>Владелец:</strong>
+            {{ pet.client }}
+        </p>
+
+        <p>
+            <strong>Вид:</strong>
+            {{ pet.species }}
+        </p>
+
+        <p>
+            <strong>Возраст:</strong>
+            {{ pet.age }}
+        </p>
+
+    </div>
+
+</div>
+
+<table class="table table-striped">
+
+    <thead>
+
+        <tr>
+            <th>Дата</th>
+            <th>Врач</th>
+            <th>Диагноз</th>
+            <th>Статус</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for appointment in appointments %}
+
+        <tr>
+
+            <td>
+                {{ appointment.appointment_date }}
+            </td>
+
+            <td>
+                {{ appointment.doctor }}
+            </td>
+
+            <td>
+                {{ appointment.diagnosis }}
+            </td>
+
+            <td>
+
+                {% if appointment.status == 'scheduled' %}
+
+                <span class="badge bg-warning text-dark">
+                    Запланирован
+                </span>
+
+                {% elif appointment.status == 'completed' %}
+
+                <span class="badge bg-success">
+                    Завершён
+                </span>
+
+                {% elif appointment.status == 'cancelled' %}
+
+                <span class="badge bg-danger">
+                    Отменён
+                </span>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="4">
+                История приёмов отсутствует
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

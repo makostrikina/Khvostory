@@ -1,0 +1,121 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Статистика клиники
+</h2>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="row">
+    <!-- питомцы по видам -->
+
+    <div class="col-md-6">
+        <div class="card p-3 mb-4">
+
+            <h4>
+                Питомцы по видам
+            </h4>
+
+            <canvas id="speciesChart"></canvas>
+
+        </div>
+
+    </div>
+    <!-- круговая -->
+    <div class="col-md-6">
+
+        <div class="card p-3 mb-4">
+
+            <h4>
+                Статусы приёмов
+            </h4>
+
+            <canvas id="statusChart"></canvas>
+
+        </div>
+
+    </div>
+
+    <!-- столбчатая -->
+    <div class="col-md-6">
+
+        <div class="card p-3 mb-4">
+
+            <h4>
+                Приёмы по врачам
+
+            </h4>
+
+            <canvas id="doctorChart"></canvas>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const speciesCtx =
+        document.getElementById('speciesChart');
+        new Chart(speciesCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ species_labels|safe }},
+                datasets: [{
+                    data: {{ species_counts|safe }}
+                }]
+            }
+        });
+
+    //круговая диаграмма
+    const statusCtx =
+        document.getElementById('statusChart');
+
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: [
+                'Запланировано',
+                'Завершено',
+                'Отменено'
+            ],
+
+            datasets: [{
+                data: [
+                    {{ scheduled_count }},
+                    {{ completed_count }},
+                    {{ cancelled_count }}
+                ]
+            }]
+        }
+    });
+
+    //столбчатая диаграмма
+    const doctorCtx =
+        document.getElementById('doctorChart');
+
+    new Chart(doctorCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ doctor_names|safe }},
+            datasets: [{
+                label: 'Количество приёмов',
+                data: {{ doctor_counts|safe }},
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+</script>
+
+{% endblock %}

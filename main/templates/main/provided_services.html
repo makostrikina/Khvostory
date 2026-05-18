@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Оказанные услуги</h2>
+
+<a href="/add-provided-service/" class="btn btn-success mb-3">
+    Добавить оказанную услугу
+</a>
+
+<table class="table table-striped table-bordered">
+    <tr style="background:#d9f1f1;">
+        <th>Приём</th>
+        <th>Услуга</th>
+        <th>Количество</th>
+        <th>Цена</th>
+        <th>Действия</th>
+    </tr>
+
+    {% for item in provided_services %}
+    <tr>
+        <td>
+            <strong>
+                {{ item.appointment.pet.name }}
+            </strong>
+            {{ item.appointment.appointment_date }}
+        </td>
+        <td>{{ item.service.title }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.service.price }}</td>
+        <td>
+            <a href="/edit-provided-service/{{ item.id }}/"class="btn btn-warning btn-sm">Редактировать</a> |
+            <a href="/delete-provided-service/{{ item.id }}/"class="btn btn-danger btn-sm">Удалить</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6">Нет оказанных услуг.</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

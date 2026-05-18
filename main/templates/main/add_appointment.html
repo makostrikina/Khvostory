@@ -1,0 +1,85 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Добавить новый приём
+</h2>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit"
+            class="btn btn-success">
+        Сохранить
+    </button>
+</form>
+
+<script>
+    $(document).ready(function () {
+
+        //поиск владельца только для администратора и врача
+        {% if not client_dashboard %}
+
+        $('#id_client').select2({
+            placeholder: 'Начните вводить имя владельца',
+            allowClear: true,
+            width: '100%'
+        });
+
+        {% endif %}
+
+        //поиск питомца
+        $('#id_pet').select2({
+            placeholder: 'Начните вводить кличку питомца',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const doctorField =
+            document.getElementById('id_doctor');
+        const dateField =
+            document.getElementById('id_appointment_date');
+        const clientField =
+            document.getElementById('id_client');
+        function reloadForm() {
+            document.forms[0].submit();
+        }
+
+        //обновление при выборе врача
+        if (doctorField) {
+            doctorField.addEventListener(
+                'change',
+                reloadForm
+            );
+        }
+
+        //обновление при выборе даты
+        if (dateField) {
+            dateField.addEventListener(
+                'change',
+                reloadForm
+            );
+        }
+
+        //обновление при выборе клиента
+        if (clientField) {
+            clientField.addEventListener(
+                'change',
+                reloadForm
+            );
+        }
+    });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Календарь приёмов</h2>
+
+<!-- навигация по дате -->
+<form method="get" class="mb-4">
+
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <input type="date"
+                   name="date"
+                   value="{{ selected_date }}"
+                   class="form-control">
+
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-primary">
+                Показать
+            </button>
+        </div>
+
+    </div>
+
+</form>
+
+<!-- карточки приемов -->
+<div class="row">
+
+    {% for appointment in appointments %}
+
+    <div class="col-md-4 mb-3">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h5>
+                    {{ appointment.pet.name }}
+                </h5>
+
+                <p>
+                    <b>Врач:</b> {{ appointment.doctor.full_name }}
+                </p>
+
+                <p>
+                    <b>Дата:</b> {{ appointment.appointment_date }}
+                </p>
+
+                <p>
+                    <b>Время:</b> {{ appointment.appointment_time }}
+                </p>
+
+                {% if appointment.status == 'scheduled' %}
+                <span class="badge bg-warning">Запланирован</span>
+
+                {% elif appointment.status == 'completed' %}
+                <span class="badge bg-success">Завершён</span>
+
+                {% elif appointment.status == 'cancelled' %}
+                <span class="badge bg-danger">Отменён</span>
+                {% endif %}
+
+                <hr>
+
+                <a href="/receipt/{{ appointment.id }}/"
+                   class="btn btn-sm btn-secondary">
+                    Чек
+                </a>
+
+                <a href="/receipt-pdf/{{ appointment.id }}/"
+                   class="btn btn-sm btn-danger">
+                    PDF
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <p>Нет записей на выбранную дату</p>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

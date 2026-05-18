@@ -1,0 +1,97 @@
+{% load static %}
+
+<style>
+
+@font-face {
+    font-family: 'DejaVu';
+    src: url(
+        '{{ STATIC_URL }}fonts/DejaVuSans.ttf'
+    );
+}
+
+body {
+    font-family: 'DejaVu';
+}
+
+</style>
+{% block content %}
+
+<h2>Квитанция</h2>
+
+<hr>
+
+<p>
+    <strong>Клиент:</strong>
+    {{ appointment.client }}
+</p>
+
+<p>
+    <strong>Питомец:</strong>
+    {{ appointment.pet }}
+</p>
+
+<p>
+    <strong>Врач:</strong>
+    {{ appointment.doctor }}
+</p>
+
+<p>
+    <strong>Дата:</strong>
+    {{ appointment.appointment_date }}
+</p>
+
+<p>
+    <strong>Время:</strong>
+    {{ appointment.appointment_time }}
+</p>
+
+<hr>
+
+<h4>Услуги</h4>
+
+<table class="table table-striped">
+
+    <thead>
+
+        <tr>
+            <th>Услуга</th>
+            <th>Цена</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for service in services %}
+
+        <tr>
+
+            <td>
+                {{ service.service.name }}
+            </td>
+
+            <td>
+                {{ service.service.price }} ₽
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<h3 class="text-success">
+
+    Итого:
+    {{ appointment.total_price }} ₽
+
+</h3>
+
+<button onclick="window.print()"
+        class="btn btn-primary">
+    Печать
+</button>
+
+{% endblock %}

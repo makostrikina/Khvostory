@@ -1,0 +1,276 @@
+﻿{% extends 'main/base.html' %}
+
+{% block content %}
+
+{% if admin_dashboard %}
+
+<h1 class="mb-4">
+    Панель администратора
+</h1>
+
+<div class="row">
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+                <h5>Клиенты</h5>
+                <h2>{{ clients_count }}</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+                <h5>Питомцы</h5>
+                <h2>{{ pets_count }}</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+                <h5>Врачи</h5>
+                <h2>{{ doctors_count }}</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+                <h5>Приёмы</h5>
+                <h2>{{ appointments_count }}</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <h4 class="mb-3">
+            Последние приёмы
+        </h4>
+
+        <table class="table table-striped">
+
+            <thead>
+
+                <tr>
+                    <th>Клиент</th>
+                    <th>Питомец</th>
+                    <th>Врач</th>
+                    <th>Дата</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for appointment in latest_appointments %}
+
+                <tr>
+                    <td>{{ appointment.client }}</td>
+                    <td>{{ appointment.pet }}</td>
+                    <td>{{ appointment.doctor }}</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if doctor_dashboard %}
+
+<h1 class="mb-4">
+    Кабинет врача
+</h1>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <h4 class="mb-3">
+            Мои приёмы
+        </h4>
+
+        <table class="table table-striped">
+
+            <thead>
+
+                <tr>
+                    <th>Клиент</th>
+                    <th>Питомец</th>
+                    <th>Дата</th>
+                    <th>Время</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for appointment in appointments %}
+
+                <tr>
+                    <td>{{ appointment.client }}</td>
+                    <td>{{ appointment.pet }}</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.appointment_time }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if client_dashboard %}
+
+<h1 class="mb-4">
+    Личный кабинет
+</h1>
+
+<h3 class="mb-3">Мои питомцы</h3>
+
+{% if pets %}
+
+<div class="row">
+
+    {% for pet in pets %}
+
+    <div class="col-md-4 mb-3">
+
+        <div class="card h-100 shadow-sm">
+
+            {% if pet.image %}
+
+            <img src="{{ pet.image.url }}"
+                 class="card-img-top"
+                 style="height:200px; object-fit:cover;">
+
+            {% endif %}
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    {{ pet.name }}
+                </h5>
+
+                <p class="card-text">
+                    <b>Вид:</b> {{ pet.species }}
+
+                    <b>Порода:</b> {{ pet.breed }}
+
+                    <b>Возраст:</b> {{ pet.age }}
+                </p>
+
+                <a href="/pet/{{ pet.id }}/"
+                   class="btn btn-primary btn-sm">
+                    Открыть карточку
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+{% else %}
+
+<div class="alert alert-info">
+    У вас пока нет питомцев
+</div>
+
+{% endif %}
+{% endif %}
+
+<div class="card">
+
+    <div class="card-body">
+        {% if client_dashboard %}
+        <h4>
+            Мои приёмы
+        </h4>
+
+        {% if appointments %}
+
+        <table class="table table-striped">
+
+            <thead>
+
+                <tr>
+                    <th>Питомец</th>
+                    <th>Врач</th>
+                    <th>Дата</th>
+                    <th>Время</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for appointment in appointments %}
+
+                <tr>
+                    <td>{{ appointment.pet }}</td>
+                    <td>{{ appointment.doctor }}</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.appointment_time }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <div class="alert alert-warning">
+            Нет записей на приём
+        </div>
+
+        {% endif %}
+    {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

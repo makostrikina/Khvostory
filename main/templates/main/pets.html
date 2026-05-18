@@ -1,0 +1,185 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Список питомцев</h2>
+
+<form method="get" class="mb-3">
+
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <input type="text"
+                   name="q"
+                   class="form-control"
+                   placeholder="Поиск питомца">
+
+        </div>
+
+        <div class="col-md-2">
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Поиск
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
+<a href="/add-pet/" class="btn btn-success mb-3">
+    Добавить питомца
+</a>
+
+<div class="mt-4">
+
+    {% if pets.has_previous %}
+
+    <a href="?page=1"
+       class="btn btn-outline-primary">
+
+        Первая
+
+    </a>
+
+    <a href="?page={{ pets.previous_page_number }}"
+       class="btn btn-outline-primary">
+
+        Назад
+
+    </a>
+
+    {% endif %}
+
+    <span class="mx-2">
+
+        Страница
+        {{ pets.number }}
+        из
+        {{ pets.paginator.num_pages }}
+
+    </span>
+
+    {% if pets.has_next %}
+
+    <a href="?page={{ pets.next_page_number }}"
+       class="btn btn-outline-primary">
+
+        Вперёд
+
+    </a>
+
+    <a href="?page={{ pets.paginator.num_pages }}"
+       class="btn btn-outline-primary">
+
+        Последняя
+
+    </a>
+
+    {% endif %}
+
+</div>
+
+<table class="table table-striped table-bordered">
+    <tr style="background:#d9f1f1;">
+        <th>Владелец</th>
+        <th>Вид</th>
+        <th>Порода</th>
+        <th>Возраст</th>
+        <th>Имя</th>
+        <th>Фото</th>
+        <th>История</th>
+        <th>Управление</th>
+    </tr>
+
+    {% for pet in pets %}
+    <tr>
+        <td>{{ pet.owner.full_name }}</td>
+        <td>{{ pet.species }}</td>
+        <td>{{ pet.breed }}</td>
+        <td>{{ pet.age }}</td>
+        <td>{{ pet.name }}</td>
+        <td>
+            {% if pet.image %}
+            <img src="{{ pet.image.url }}" width="100">
+            {% endif %}
+        </td>
+        <td>
+            <a href="/pet-history/{{ pet.id }}/"
+               class="btn btn-info btn-sm">
+                История
+            </a>
+        </td>
+        <td>
+            <a href="/edit-pet/{{ pet.id }}/"
+               class="btn btn-warning btn-sm">
+                Редактировать
+            </a>
+            <a href="/delete-pet/{{ pet.id }}/"
+               class="btn btn-danger btn-sm">
+                Удалить
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">Нет питомцев в базе.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr class="my-5">
+
+<h2 class="mb-4">Карточки питомцев</h2>
+
+<div class="row">
+
+    {% for pet in all_pets %}
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow-sm h-100">
+
+            {% if pet.image %}
+
+            <img src="{{ pet.image.url }}"
+                 class="card-img-top"
+                 style="height: 250px; object-fit: cover;">
+
+            {% endif %}
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    {{ pet.name }}
+                </h5>
+
+                <p class="card-text">
+
+                    <strong>Вид:</strong>
+                    {{ pet.species }}
+
+
+
+                    <strong>Порода:</strong>
+                    {{ pet.breed }}
+
+
+
+                    <strong>Возраст:</strong>
+                    {{ pet.age }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Карточка питомца
+</h2>
+
+<div class="card p-4">
+
+    {% if pet.image %}
+
+    <img src="{{ pet.image.url }}"
+         width="250"
+         class="mb-3">
+
+    {% endif %}
+
+    <h4>{{ pet.name }}</h4>
+    <p><b>Вид:</b> {{ pet.species }}</p>
+    <p><b>Порода:</b> {{ pet.breed }}</p>
+    <p><b>Возраст:</b> {{ pet.age }}</p>
+    <p><b>Владелец:</b> {{ pet.owner.full_name }}</p>
+
+</div>
+
+{% endblock %}
