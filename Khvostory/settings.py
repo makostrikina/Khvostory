@@ -35,8 +35,6 @@ SECRET_KEY = '=wh+5a03pyst!shn4e8yb=iki(#lfqpb)362a6wn75mgqg0p3b'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-DATABASE_URL=vet_ckg8
-
 ALLOWED_HOSTS = ['*']
 
 ALLOWED_HOSTS = [
