@@ -42,6 +42,7 @@ urlpatterns = [
     path('pet/<int:pet_id>/', views.pet_detail, name='pet_detail'),
     path('cancel-appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
     path('receipts/', views.receipts, name='receipts'),
+    path('init-admin/', views.init_admin)
 ]
 
 if settings.DEBUG:

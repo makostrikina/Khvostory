@@ -22,6 +22,16 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from django.contrib.auth.models import User
+
+def init_admin(request):
+    if not User.objects.exists():
+        User.objects.create_superuser(
+            username='admin',
+            password='M1234567'
+        )
+        return HttpResponse("admin created")
+    return HttpResponse("already exists")
 
 def custom_404(request, exception):
     return render(
