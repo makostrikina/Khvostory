@@ -1,1 +1,1 @@
-web: gunicorn Khvostory.wsgi
+web: gunicorn Khvostory.wsgi:application
