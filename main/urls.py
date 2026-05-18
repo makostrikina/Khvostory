@@ -42,7 +42,6 @@ urlpatterns = [
     path('pet/<int:pet_id>/', views.pet_detail, name='pet_detail'),
     path('cancel-appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
     path('receipts/', views.receipts, name='receipts'),
-    path('create-admin/', views.create_admin)
 ]
 
 if settings.DEBUG:

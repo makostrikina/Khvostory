@@ -23,17 +23,6 @@ from django.db.models import Q, Count
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-from django.contrib.auth.models import User
-
-def create_admin(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser(
-            username='admin',
-            password='12345'
-        )
-        return HttpResponse("created")
-    return HttpResponse("already exists")
-
 def custom_404(request, exception):
     return render(
         request,
