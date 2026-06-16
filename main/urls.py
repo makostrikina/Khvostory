@@ -1,17 +1,26 @@
 from django.urls import path
-from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
+from . import api  # <-- ƒŒ¡¿¬‹“≈ ›“” —“–Œ ”
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('clients/', views.clients, name='clients'),
+    path('clients/', views.clients, name='clients'),  # Œ—“¿≈“—ﬂ  ¿  ¡€ÀŒ
     path('pets/', views.pets, name='pets'),
     path('doctors/', views.doctors, name='doctors'),
     path('services/', views.services, name='services'),
     path('appointments/', views.appointments, name='appointments'),
     path('provided-services/', views.provided_services, name='provided_services'),
-    #path('receipts/', views.receipts, name='receipts'),
+    
+    # API Ã¿–ÿ–”“€ ƒÀﬂ SPA (“ŒÀ‹ Œ ›“Œ ƒŒ¡¿¬Àﬂ≈Ã)
+    path('api/clients/', api.clients_api, name='api_clients'),
+    path('api/add-client/', api.add_client_api, name='api_add_client'),
+    path('api/edit-client/<int:client_id>/', api.edit_client_api, name='api_edit_client'),
+    path('api/delete-client/<int:client_id>/', api.delete_client_api, name='api_delete_client'),
+    path('api/users/', views.get_users_api, name='api_users'),
+    
+    # ¬—® Œ—“¿À‹ÕŒ≈ Œ—“¿≈“—ﬂ  ¿  ¡€ÀŒ
     path('add-client/', views.add_client, name='add_client'),
     path('edit-client/<int:client_id>/', views.edit_client),
     path('delete-client/<int:client_id>/', views.delete_client),

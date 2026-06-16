@@ -45,13 +45,11 @@ class ClientForm(forms.ModelForm):
             'phone': 'Телефон',
             'email': 'Email'
         }
+    
     def __init__(self, *args, **kwargs):
-
         super(ClientForm, self).__init__(*args, **kwargs)
-
-        self.fields['user'].queryset = User.objects.filter(
-            groups__name='Client'
-        )
+        self.fields['user'].queryset = User.objects.filter(groups__name='Client')
+        self.fields['user'].required = True
 
 class PetForm(forms.ModelForm):
     class Meta:

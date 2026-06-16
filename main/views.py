@@ -24,6 +24,10 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from django.contrib.auth.models import User
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+import json
+
 def init_admin(request):
     if not User.objects.exists():
         User.objects.create_superuser(
@@ -44,6 +48,18 @@ def is_admin(user):
     return user.groups.filter(name='Admin').exists()
 
 from django.http import HttpResponseForbidden
+from django.http import JsonResponse
+from django.contrib.auth.models import User
+
+def get_users_api(request):
+    """API для получения списка пользователей группы 'Client'"""
+    group_name = request.GET.get('group', 'Client')
+    users = User.objects.filter(groups__name=group_name).values('id', 'username', 'email')
+    return JsonResponse(list(users), safe=False)
+
+def clients_spa(request):
+    """SPA версия страницы клиентов"""
+    return render(request, 'main/clients_spa.html')
 
 def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
@@ -121,26 +137,16 @@ def home(request):
 @login_required
 def clients(request):
     query = request.GET.get('q')
-
     if query:
-        clients_list = Client.objects.filter(
-            full_name__icontains=query
-        )
-
+        clients_list = Client.objects.filter(full_name__icontains=query)
     else:
         clients_list = Client.objects.all()
-
+    
     paginator = Paginator(clients_list, 9)
     page_number = request.GET.get('page')
     clients = paginator.get_page(page_number)
-
-    return render(
-        request,
-        'main/clients.html',
-        {
-            'clients': clients
-        }
-    )
+    
+    return render(request, 'main/clients.html', {'clients': clients})
 
 @login_required
 def pets(request):

@@ -3,104 +3,296 @@
 {% block content %}
 <h2 class="mb-4">Список клиентов</h2>
 
-<form method="get" class="mb-3">
-
+<!-- ФОРМА ПОИСКА -->
+<form method="get" class="mb-3" id="searchForm">
     <div class="row">
-
         <div class="col-md-6">
-
             <input type="text"
                    name="q"
+                   id="searchInput"
                    class="form-control"
                    placeholder="Поиск клиента">
-
         </div>
-
         <div class="col-md-2">
-
-            <button type="submit"
-                    class="btn btn-primary">
+            <button type="submit" class="btn btn-primary">
                 Поиск
             </button>
-
         </div>
-
     </div>
-
 </form>
 
-<a href="/add-client/" class="btn btn-success mb-3">
+<!-- КНОПКА ДОБАВЛЕНИЯ -->
+<button id="addClientBtn" class="btn btn-success mb-3">
     Добавить клиента
-</a>
+</button>
 
-<div class="mt-4">
+<!-- ПАГИНАЦИЯ ВЕРХ -->
+<div class="mt-4" id="paginationTop"></div>
 
-    {% if clients.has_previous %}
+<!-- ТАБЛИЦА -->
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr style="background:#d9f1f1;">
+            <th>ФИО</th>
+            <th>Телефон</th>
+            <th>Email</th>
+            <th>Управление</th>
+        </tr>
+    </thead>
+    <tbody id="clientsTableBody">
+        <!-- будет заполняться через JS -->
+    </tbody>
+</table>
 
-    <a href="?page=1"
-       class="btn btn-outline-primary">
-        Первая
-    </a>
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div class="modal fade" id="clientModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Добавить клиента</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalError" class="alert alert-danger" style="display:none;"></div>
+                <form id="clientForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="clientId" name="client_id">
 
-    <a href="?page={{ clients.previous_page_number }}"
-       class="btn btn-outline-primary">
-        Назад
-    </a>
+                    <div class="mb-3">
+                        <label class="form-label">ФИО <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="fullName" name="full_name" required>
+                    </div>
 
-    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Телефон <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="phone" name="phone" required>
+                    </div>
 
-    <span class="mx-2">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
 
-        Страница
-        {{ clients.number }}
-        из
-        {{ clients.paginator.num_pages }}
+                    <div class="mb-3">
+                        <label class="form-label">Пользователь <span class="text-danger">*</span></label>
+                        <select class="form-control" id="userId" name="user" required>
+                            <option value="">-- Выберите пользователя --</option>
+                        </select>
+                        <small class="text-muted">Выберите зарегистрированного пользователя из группы "Client"</small>
+                    </div>
 
-    </span>
-
-    {% if clients.has_next %}
-
-    <a href="?page={{ clients.next_page_number }}"
-       class="btn btn-outline-primary">
-        Вперёд
-    </a>
-
-    <a href="?page={{ clients.paginator.num_pages }}"
-       class="btn btn-outline-primary">
-        Последняя
-    </a>
-
-    {% endif %}
-
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Сохранить</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<table class="table table-striped table-bordered">
-    <tr style="background:#d9f1f1;">
-        <th>ФИО</th>
-        <th>Телефон</th>
-        <th>Email</th>
-        <th>Управление</th>
-    </tr>
+<script>
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
 
-    {% for client in clients %}
-    <tr>
-        <td>{{ client.full_name }}</td>
-        <td>{{ client.phone }}</td>
-        <td>{{ client.email }}</td>
-        <td>
-            <a href="/edit-client/{{ client.id }}/"class="btn btn-warning btn-sm">Редактировать</a> |
-            <a href="/delete-client/{{ client.id }}/"
-               class="btn btn-danger btn-sm"
-               onclick="return confirm('Вы действительно хотите удалить клиента?')"
-            >
-                Удалить
-            </a>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="5">Нет клиентов в базе.</td>
-    </tr>
-    {% endfor %}
-</table>
+    // Загрузка пользователей
+    function loadUsers() {
+        fetch('/api/users/?group=Client')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('userId');
+                select.innerHTML = '<option value="">-- Выберите пользователя --</option>';
+                data.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.username + (user.email ? ' (' + user.email + ')' : '');
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Ошибка загрузки пользователей:', error));
+    }
+
+    // Загрузка клиентов
+    function loadClients(page = 1, query = '') {
+        let url = '/api/clients/?page=' + page;
+        if (query) url += '&q=' + encodeURIComponent(query);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('clientsTableBody');
+                if (data.clients.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">Нет клиентов в базе.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.clients.map(client => `
+                <tr>
+                    <td>${client.full_name}</td>
+                    <td>${client.phone}</td>
+                    <td>${client.email || ''}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editClient(${client.id})">Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteClient(${client.id})">Удалить</button>
+                    </td>
+                </tr>
+            `).join('');
+
+                // Пагинация в стиле оригинала (только верхняя)
+                const p = data.pagination;
+                let html = '<div class="mt-4">';
+
+                if (p.has_previous) {
+                    html += `
+                        <a href="#" class="btn btn-outline-primary" onclick="loadClients(1, document.getElementById('searchInput').value); return false;">
+                            Первая
+                        </a>
+                        <a href="#" class="btn btn-outline-primary" onclick="loadClients(${p.previous_page}, document.getElementById('searchInput').value); return false;">
+                            Назад
+                        </a>
+                    `;
+                }
+
+                html += `
+                    <span class="mx-2">
+                        Страница ${p.current_page} из ${p.total_pages}
+                    </span>
+                `;
+
+                if (p.has_next) {
+                    html += `
+                        <a href="#" class="btn btn-outline-primary" onclick="loadClients(${p.next_page}, document.getElementById('searchInput').value); return false;">
+                            Вперёд
+                        </a>
+                        <a href="#" class="btn btn-outline-primary" onclick="loadClients(${p.total_pages}, document.getElementById('searchInput').value); return false;">
+                            Последняя
+                        </a>
+                    `;
+                }
+
+                html += '</div>';
+
+                document.getElementById('paginationTop').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Ошибка загрузки данных');
+            });
+    }
+
+    // Добавление клиента
+    document.getElementById('addClientBtn').onclick = function () {
+        document.getElementById('modalTitle').textContent = 'Добавить клиента';
+        document.getElementById('clientId').value = '';
+        document.getElementById('fullName').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('userId').value = '';
+        document.getElementById('modalError').style.display = 'none';
+        document.getElementById('saveBtn').textContent = 'Сохранить';
+        new bootstrap.Modal(document.getElementById('clientModal')).show();
+    };
+
+    // Редактирование клиента
+    function editClient(id) {
+        fetch('/api/clients/?page=1')
+            .then(r => r.json())
+            .then(data => {
+                const client = data.clients.find(c => c.id === id);
+                if (client) {
+                    document.getElementById('modalTitle').textContent = 'Редактировать клиента';
+                    document.getElementById('clientId').value = client.id;
+                    document.getElementById('fullName').value = client.full_name;
+                    document.getElementById('phone').value = client.phone;
+                    document.getElementById('email').value = client.email || '';
+                    document.getElementById('userId').value = client.user_id || '';
+                    document.getElementById('modalError').style.display = 'none';
+                    document.getElementById('saveBtn').textContent = 'Обновить';
+                    new bootstrap.Modal(document.getElementById('clientModal')).show();
+                }
+            });
+    }
+
+    // Удаление клиента
+    function deleteClient(id) {
+        if (!confirm('Вы действительно хотите удалить клиента?')) return;
+        fetch('/api/delete-client/' + id + '/', {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCSRFToken() }
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadClients(1, document.getElementById('searchInput').value);
+                } else {
+                    alert('Ошибка: ' + (data.error || ''));
+                }
+            });
+    }
+
+    // Сохранение клиента
+    document.getElementById('clientForm').onsubmit = function (e) {
+        e.preventDefault();
+        const id = document.getElementById('clientId').value;
+        const isEdit = id !== '';
+        const userId = document.getElementById('userId').value;
+
+        if (!userId) {
+            document.getElementById('modalError').textContent = 'Выберите пользователя';
+            document.getElementById('modalError').style.display = 'block';
+            return;
+        }
+
+        const data = {
+            full_name: document.getElementById('fullName').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            user: parseInt(userId)
+        };
+
+        const url = isEdit ? '/api/edit-client/' + id + '/' : '/api/add-client/';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        document.getElementById('saveBtn').disabled = true;
+        document.getElementById('saveBtn').textContent = 'Сохранение...';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('saveBtn').disabled = false;
+                document.getElementById('saveBtn').textContent = isEdit ? 'Обновить' : 'Сохранить';
+
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('clientModal')).hide();
+                    loadClients(1, document.getElementById('searchInput').value);
+                } else {
+                    const errorDiv = document.getElementById('modalError');
+                    errorDiv.textContent = data.errors ? JSON.stringify(data.errors) : (data.error || 'Ошибка');
+                    errorDiv.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('saveBtn').disabled = false;
+                document.getElementById('saveBtn').textContent = isEdit ? 'Обновить' : 'Сохранить';
+                alert('Ошибка сохранения');
+            });
+    };
+
+    // Поиск
+    document.getElementById('searchForm').onsubmit = function (e) {
+        e.preventDefault();
+        loadClients(1, document.getElementById('searchInput').value);
+    };
+
+    // Загрузка при старте
+    document.addEventListener('DOMContentLoaded', function () {
+        loadUsers();
+        loadClients(1);
+    });
+</script>
 {% endblock %}
